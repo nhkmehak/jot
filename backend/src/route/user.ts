@@ -1,24 +1,29 @@
 const express = require("express")
 const router = express.Router()
+import { signupInput, signinInput } from "@nhkkmehak/jot-common";
 const jwt = require("jsonwebtoken")
 import { Request, Response } from 'express';
 import { PrismaClient } from "@prisma/client";
-const jwt_secret="123456"
 const prisma = new PrismaClient();
 router.use(express.json())
-
-router.post("/signup",async (req : Request,res: Response)=>{
+router.post("/signup", async (req : Request,res: Response)=>{
     try {
-    const { email, password, name } = req.body; // Add name to destructuring
+         const parsedInput = signupInput.safeParse(req.body);
+        if (!parsedInput.success) {
+            return res.status(411).json({
+                error: parsedInput.error
+            });
+        }
+    const { email, password, name } = parsedInput.data; 
     
     const user = await prisma.user.create({
       data: {
-        name,    // Add required name field
+        name: name as string,  
         email,
         password,
       }
     });
-    try {var jwttoken= await jwt.Sign({id:user.id}, jwt_secret)
+    try {var jwttoken= await jwt.Sign({id:user.id}, process.env.JWT_SECRET)
     res.json({ jwttoken });
 } catch(error)
 {
@@ -33,10 +38,18 @@ router.post("/signup",async (req : Request,res: Response)=>{
 })
 
 router.post("/signin",async (req : Request,res: Response)=>{
-try{ const body = req.body;
+try{ 
+   const parsedInput = signinInput.safeParse(req.body);
+        if (!parsedInput.success) {
+            return res.status(411).json({
+                error: parsedInput.error
+            });
+        }
+   const { email, password } = parsedInput.data;
 const user = await prisma.user.findUnique({
     where: {
-        email: body.email
+        email: email,
+        password: password
     }
 })
 if(!user)
@@ -45,7 +58,7 @@ if(!user)
         error: "cant find user"
     })
 }
-var jwttoken = jwt.Sign({id: user.id}, jwt_secret )
+var jwttoken = jwt.Sign({id: user.id}, process.env.JWT_SECRET)
  res.json({ jwttoken });}
  catch(error)
  {

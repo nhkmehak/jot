@@ -6,41 +6,46 @@
 
     // Environment Settings
     "module": "NodeNext",
-    "target": "esnext",
-"typeRoots": ["./node_modules/@types", "./src/types"],
-    // For nodejs:
-    "lib": ["esnext"],
+    "target": "ES2020",  // Changed from esnext to ES2020 for better compatibility
+    "moduleResolution": "NodeNext",  // Explicitly added for Node.js module resolution
+
+    // Type Definitions
+    "typeRoots": ["./node_modules/@types"],
     "types": ["node"],
 
-    // Other Outputs
+    // Output Generation
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
+    "emitDeclarationOnly": false,  // Ensure JS files are also emitted
 
-    // Stricter Typechecking Options
+    // Strict Type Checking
+    "strict": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
 
-    // Style Options
-    // "noImplicitReturns": true,
-    // "noImplicitOverride": true,
-    // "noUnusedLocals": true,
-    // "noUnusedParameters": true,
-    // "noFallthroughCasesInSwitch": true,
-    // "noPropertyAccessFromIndexSignature": true,
-
-    // Recommended Options
-    "strict": true,
-    "jsx": "react-jsx",
-    "verbatimModuleSyntax": false,
+    // Module Interop
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "isolatedModules": true,
-    "noUncheckedSideEffectImports": true,
-    "moduleDetection": "force",
-    "skipLibCheck": true
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+
+    // Additional Safety Checks
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+
+    // JSX (only needed if you use React)
+    "jsx": "preserve"  // Changed from react-jsx since this is a backend package
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "types/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.test.ts",
+    "**/*.spec.ts"
   ]
 }

@@ -4,19 +4,32 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 import { Request, Response } from 'express';
 const { authMiddleware } = require('../middlewares/auth');
+import { 
+  createPostInput, 
+  updatePostInput,
+} from '@nhkkmehak/jot-common';
 
 router.post("/",authMiddleware, async (req : Request,res: Response)=>{
 const userId = (req as any).userId
-const body = req.body;
-try {const post =  await prisma.post.create({
+const validation = createPostInput.safeParse(req.body);
+    if (!validation.success) {
+        return res.status(400).json({
+            error: "Invalid input",
+            details: validation.error,
+        });
+    }
+try {
+    const post =  await prisma.post.create({
     data:{
-       title: body.title,
-			content: body.content,
-			authorId: userId,
-}})
+ title: validation.data.title,
+                content: validation.data.content,
+                authorId: userId,
+            }})
 
  return res.status(201).json({
-            message: "Post created successfully"})
+            message: "Post created successfully",
+        post })
+
 }
 catch(error)
 {
@@ -26,16 +39,33 @@ catch(error)
 
 router.put("/",authMiddleware, async (req : Request,res: Response)=>{
 const userId = (req as any).userId
-const body = req.body
+const validation = updatePostInput.safeParse(req.body);
+    if (!validation.success) {
+        return res.status(400).json({
+            error: "Invalid input",
+            details: validation.error
+        });
+    }
+            const updateData: {
+            title?: string;
+            content?: string;
+        } = {};
+
+        if (validation.data.title !== undefined) {
+            updateData.title = validation.data.title;
+        }
+        if (validation.data.content !== undefined) {
+            updateData.content = validation.data.content;
+        }
+        if (Object.keys(updateData).length === 0) {
+            return res.status(400).json({ error: "No valid fields to update" });
+        }
 try{ const post = await prisma.post.update({
     where: {
-        id: body.id,
+        id: req.body.id,
 	    authorId: userId,
     },
-    		data: {
-			title: body.title,
-			content: body.content
-		}
+    		data:  updateData  
 })
 return res.json(post);
 }
@@ -74,7 +104,6 @@ router.get("/:id",authMiddleware,async (req : Request,res: Response)=>{
 })
 
 router.get('/bulk',authMiddleware, async (req : Request,res: Response) => {
-	
 	const posts = await prisma.post.findMany({});
 res.json(posts)
 })

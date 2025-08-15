@@ -10,6 +10,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@nhkkmehak/jot-common": "^1.0.4",
     "@prisma/client": "^6.14.0",
     "cors": "^2.8.5",
     "express": "^5.1.0",
