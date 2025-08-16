@@ -1,6 +1,6 @@
 {
   "name": "@nhkkmehak/jot-common",
-  "version": "1.0.4",
+  "version": "1.0.4npm publish --access public",
   "main": "dist/index.js",
   "type": "module",
   "scripts": {

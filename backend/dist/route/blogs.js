@@ -1,17 +1,14 @@
-const express = require("express")
-const router = express.Router()
-import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient();
-import { Request, Response } from 'express';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express = require("express");
+const router = express.Router();
+const client_1 = require("@prisma/client");
+const prisma = new client_1.PrismaClient();
 const { authMiddleware } = require('../middlewares/auth');
-import { 
-  createPostInput, 
-  updatePostInput,
-} from '@nhkkmehak/jot-common';
-
-router.post("/",authMiddleware, async (req : Request,res: Response)=>{
-    const userId = (req as any).userId
-    const validation = createPostInput.safeParse(req.body);
+const jot_common_1 = require("@nhkkmehak/jot-common");
+router.post("/", authMiddleware, async (req, res) => {
+    const userId = req.userId;
+    const validation = jot_common_1.createPostInput.safeParse(req.body);
     if (!validation.success) {
         return res.status(400).json({
             error: "Invalid input",
@@ -20,35 +17,31 @@ router.post("/",authMiddleware, async (req : Request,res: Response)=>{
     }
     try {
         const post = await prisma.post.create({
-            data:{
+            data: {
                 title: validation.data.title,
                 content: validation.data.content,
                 authorId: userId,
             }
-        })
+        });
         return res.status(201).json({
             message: "Post created successfully",
-            post 
-        })
-    } catch(error) {
+            post
+        });
+    }
+    catch (error) {
         return res.status(500).json({ message: "Failed to create post" });
     }
-})
-
-router.put("/",authMiddleware, async (req : Request,res: Response)=>{
-    const userId = (req as any).userId
-    const validation = updatePostInput.safeParse(req.body);
+});
+router.put("/", authMiddleware, async (req, res) => {
+    const userId = req.userId;
+    const validation = jot_common_1.updatePostInput.safeParse(req.body);
     if (!validation.success) {
         return res.status(400).json({
             error: "Invalid input",
             details: validation.error
         });
     }
-    const updateData: {
-        title?: string;
-        content?: string;
-    } = {};
-
+    const updateData = {};
     if (validation.data.title !== undefined) {
         updateData.title = validation.data.title;
     }
@@ -58,22 +51,22 @@ router.put("/",authMiddleware, async (req : Request,res: Response)=>{
     if (Object.keys(updateData).length === 0) {
         return res.status(400).json({ error: "No valid fields to update" });
     }
-    try { 
+    try {
         const post = await prisma.post.update({
             where: {
                 id: req.body.id,
                 authorId: userId,
             },
-            data: updateData  
-        })
+            data: updateData
+        });
         return res.json(post);
-    } catch(error) {
+    }
+    catch (error) {
         console.error("Update error:", error);
         return res.status(500).json({ error: "Failed to update post" });
     }
-})
-
-router.get("/:id",authMiddleware,async (req : Request,res: Response)=>{
+});
+router.get("/:id", authMiddleware, async (req, res) => {
     try {
         const { id } = req.params;
         if (!id) {
@@ -86,24 +79,25 @@ router.get("/:id",authMiddleware,async (req : Request,res: Response)=>{
             return res.status(404).json({ error: "Post not found" });
         }
         return res.status(200).json(post);
-    } catch (error) {
+    }
+    catch (error) {
         console.error("Error fetching post:", error);
         return res.status(500).json({ error: "Internal server error" });
     }
-})
-
-router.get('/bulk',authMiddleware, async (req : Request,res: Response) => {
+});
+router.get('/bulk', authMiddleware, async (req, res) => {
     try {
-        const userId = (req as any).userId
+        const userId = req.userId;
         const posts = await prisma.post.findMany({
-            where:{
-                authorId :userId,
+            where: {
+                authorId: userId,
             }
         });
-        return res.json(posts)
-    } catch(error) {
+        return res.json(posts);
+    }
+    catch (error) {
         return res.status(500).json({ error: "Failed to fetch posts" });
     }
-})
-
-module.exports = router
+});
+module.exports = router;
+//# sourceMappingURL=blogs.js.map

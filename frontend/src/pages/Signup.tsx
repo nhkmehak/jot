@@ -3,11 +3,11 @@ import{Auth} from "../components/Auth"
 function Signup() {
   return (
     <>
-    <div className="grid grid-cols-2">
+    <div className="grid grid-cols-2 lg:grid-cols-2 ">
       <div>
-<Auth/>
+<Auth type="signup"/>
       </div>
-<div className="invisible md:visible">
+<div className="none lg: block">
   <Quote/>
 </div>
     </div>
